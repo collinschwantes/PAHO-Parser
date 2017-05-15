@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "library(raster)\nlibrary(EpiWeek)\n\n##### Paho Graph parser\nCountry <- \"Anguilla\"\n\n## y lim = 6\n## x lim = 6 to 5 = 46\n\npath <- list.files(pattern = \".tiff\",full.names = T)\n\nras <- raster(path)\n\nhist(ras)\n\ntb <- table(values(ras))\nplot(ras)\n\nras[values(ras) >150 | values(ras)== 0] <- -999999\n\n### find the y value of a column \n\nras_ag <- raster(ncols = 52, nrows = 6, xmn = 0, xmx = 1363,ymn = 0, ymx = 600)\n\nextr_shp <- rasterToPolygons(x = ras_ag)\n\nplot(ras)\nplot(extr_shp,add = T)\n\n\nMode <- function(x, na.rm = FALSE) {\n  if(na.rm){\n    x = x[!is.na(x)]\n  }\n  \n  ux <- unique(x)\n  return(ux[which.max(tabulate(match(x, ux)))])\n}\n\nextr <- extract(x = ras,y = extr_shp, fun = Mode, na.rm = T, df = T)\n\n### rep each row by number of columns\n\nextr$column <- rep(1:52,6)\nextr$week <- rep(c(6:52,1:5),6)\nextr$year <- rep(c(rep(2016, 47),rep(2017,5)),6)\nextr$row <- rep(6:1,each= 52)\n\nsummary(extr)\n\n\n## find max row value for a given column  \n\nsusp <- extr[extr$PAHO_AGL ==149,]\n\nsus_v <-  susp[!duplicated(susp$column),]\n\n\ndf.ew<- epiweekToDate(year = sus_v$year, weekno = sus_v$week)\n\nsus_v$EW_date <- df.ew$d0\n\n\nsus_v$EW_date_end <- df.ew$d1\n\n\n",
+    "created" : 1494706125124.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3184194005",
+    "id" : "F979D6ED",
+    "lastKnownWriteTime" : 1494779820,
+    "last_content_update" : 1494779820505,
+    "path" : "~/Documents/PAHO Parser/PAHO_image_parser.R",
+    "project_path" : "PAHO_image_parser.R",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 1,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
